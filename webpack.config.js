@@ -1,11 +1,11 @@
+// webpack.config.js
 const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   mode: 'production',
   entry: {
-    popup: './src/components/extension-popup.tsx',
+    popup: './src/popup/popup.tsx',
     background: './src/background/background.ts',
     contentScript: './src/content/contentScript.ts',
   },
@@ -32,13 +32,9 @@ module.exports = {
     new CopyPlugin({
       patterns: [
         { from: 'public', to: '.' },
+        { from: 'src/popup/popup.html', to: 'popup.html' },
         { from: 'manifest.json', to: 'manifest.json' },
       ],
-    }),
-    new HtmlWebpackPlugin({
-      template: 'src/popup/popup.html', // Source HTML file
-      filename: 'popup.html', // Output HTML file
-      chunks: ['popup'], // Only include the popup bundle
     }),
   ],
 };

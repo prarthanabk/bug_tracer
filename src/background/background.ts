@@ -4,8 +4,8 @@
   let recordedData = {
     console: [] as string[],
     network: [] as string[],
-    performance: {} as any,
-    memory: {} as any
+    performance: {},
+    memory: {}
   };
   
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {

@@ -57,12 +57,20 @@ function interceptNetwork() {
           data: `${args[0]} - ${response.status} ${response.statusText} (${Math.round(endTime - startTime)}ms)`
         });
         return response;
-      } catch (error) {
-        chrome.runtime.sendMessage({
-          type: 'LOG_DATA',
-          category: 'network',
-          data: `${args[0]} - Failed: ${error.message}`
-        });
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          chrome.runtime.sendMessage({
+            type: 'LOG_DATA',
+            category: 'network',
+            data: `${args[0]} - Failed: ${error.message}`
+          });
+        } else {
+          chrome.runtime.sendMessage({
+            type: 'LOG_DATA',
+            category: 'network',
+            data: `${args[0]} - Failed: ${String(error)}`
+          });
+        }
         throw error;
       }
     }
@@ -79,7 +87,7 @@ function monitorPerformance() {
     const metrics = {
       fcp: entries.find(e => e.name === 'first-contentful-paint')?.startTime,
       lcp: entries.find(e => e.name === 'largest-contentful-paint')?.startTime,
-      cls: entries.find(e => e.name === 'layout-shift')?.value
+    //   cls: entries.find(e => e.entryType === 'layout-shift')?.value // Corrected type guard
     };
 
     chrome.runtime.sendMessage({
@@ -97,17 +105,23 @@ function monitorMemory() {
   if (!isRecording) return;
 
   setInterval(async () => {
-    if (performance.memory) {
-      const memory = {
-        jsHeapSize: performance.memory.usedJSHeapSize,
-        totalJSHeapSize: performance.memory.totalJSHeapSize,
-        jsHeapSizeLimit: performance.memory.jsHeapSizeLimit
+    const memory = (performance as Performance & { memory: { 
+      usedJSHeapSize: number; 
+      totalJSHeapSize: number; 
+      jsHeapSizeLimit: number; 
+    }}).memory;
+
+    if (memory) {
+      const memoryData = {
+        jsHeapSize: memory.usedJSHeapSize,
+        totalJSHeapSize: memory.totalJSHeapSize,
+        jsHeapSizeLimit: memory.jsHeapSizeLimit
       };
 
       chrome.runtime.sendMessage({
         type: 'LOG_DATA',
         category: 'memory',
-        data: memory
+        data: memoryData
       });
     }
   }, 1000);

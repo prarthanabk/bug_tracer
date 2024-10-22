@@ -187,7 +187,7 @@ ${recordedData.memory}
           <DialogHeader>
             <DialogTitle>Generated Report</DialogTitle>
             <DialogDescription>
-              Here's the report generated from your recorded data.
+              Here&apos;s the report generated from your recorded data.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
